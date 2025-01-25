@@ -1,0 +1,40 @@
+{
+  "name": "icnix-bot",
+  "version": "0.1.0",
+  "description": "",
+  "author": "harhspatel5940",
+  "keywords": [],
+  "main": "build/index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "NODE_ENV=production node build/index.js",
+    "build": "pnpm build:clean && esbuild src/**/*.ts src/*.ts --outdir=build --platform=node --format=cjs",
+    "build:clean": "rm -rf ./build ",
+    "dev": "pnpm build:clean && tsc-watch --onSuccess \"node build/index.js\"",
+    "format": "biome check --write .",
+    "lint": "biome check .",
+    "format:check": "prettier --check src/*.ts src/**/*.ts"
+  },
+  "dependencies": {
+    "discord.js": "^14.17.3",
+    "dotenv": "^16.4.7",
+    "esbuild": "^0.24.2",
+    "glob": "^11.0.1",
+    "mongodb": "^6.12.0",
+    "ulid": "^2.3.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "1.9.4",
+    "@types/node": "^22.10.10",
+    "tsc-watch": "^6.2.1",
+    "typescript": "^5.7.3"
+  },
+  "engines": {
+    "node": ">=18.*"
+  },
+  "pre-commit": [
+    "format"
+  ],
+  "packageManager": "pnpm@9.15.4+sha512.b2dc20e2fc72b3e18848459b37359a32064663e5627a51e4c74b2c29dd8e8e0491483c3abb40789cfd578bf362fb6ba8261b05f0387d76792ed6e23ea3b1b6a0"
+}
