@@ -10,16 +10,14 @@ import {
 } from "discord.js";
 
 import { type MatchType, MatchUserSchema } from "../types/match";
-import { DiscordUserSchema, type DiscordUser } from "../types/users";
+import { type DiscordUser, DiscordUserSchema } from "../types/users";
 import db from "../utils/database";
 
 export default {
   name: Events.InteractionCreate,
 
   execute: async (interaction: Interaction) => {
-    console.log("Button Interaction 1");
     if (!interaction.guild) return;
-    console.log("Button Interaction 2");
     if (!interaction.isButton()) return;
     console.log(interaction.customId);
 
@@ -62,7 +60,7 @@ async function handleMatchBet(
   }
 
   const existingBet = match.UserBets.find(
-    (bet) => bet.UserID === interaction.user.id,
+    bet => bet.UserID === interaction.user.id,
   );
 
   if (existingBet) {
@@ -70,7 +68,9 @@ async function handleMatchBet(
     return;
   }
 
-  let user = (await (await db())
+  let user = (await (
+    await db()
+  )
     .collection<DiscordUser>("users")
     .findOne({ userId: interaction.user.id })) as DiscordUser;
 

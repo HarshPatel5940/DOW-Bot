@@ -18,11 +18,11 @@ export default {
     .setName("league")
     .setDescription("League related commands")
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
-    .addSubcommand((subcommand) =>
+    .addSubcommand(subcommand =>
       subcommand
         .setName("info")
         .setDescription("get info about existing league")
-        .addStringOption((option) =>
+        .addStringOption(option =>
           option
             .setName("id-or-name")
             .setDescription("ID of the league")
@@ -30,88 +30,88 @@ export default {
             .setRequired(true),
         ),
     )
-    .addSubcommand((subcommand) =>
+    .addSubcommand(subcommand =>
       subcommand
         .setName("add")
         .setDescription("Add a new league")
-        .addStringOption((option) =>
+        .addStringOption(option =>
           option
             .setName("name")
             .setDescription("Name of the league")
             .setRequired(true),
         )
-        .addStringOption((option) =>
+        .addStringOption(option =>
           option
             .setName("description")
             .setDescription("Description of the league")
             .setRequired(true),
         )
-        .addChannelOption((option) =>
+        .addChannelOption(option =>
           option
             .setName("channel")
             .setDescription("Channel to send league updates")
             .addChannelTypes(ChannelType.GuildText)
             .setRequired(true),
         )
-        .addStringOption((option) =>
+        .addStringOption(option =>
           option
             .setName("start-date")
             .setDescription("Start date of the league. Format: MM-DD-YYYY")
             .setRequired(true),
         )
-        .addStringOption((option) =>
+        .addStringOption(option =>
           option
             .setName("end-date")
             .setDescription("End date of the league. Format: MM-DD-YYYY")
             .setRequired(true),
         ),
     )
-    .addSubcommand((subcommand) =>
+    .addSubcommand(subcommand =>
       subcommand
         .setName("update")
         .setDescription("Update an existing league")
-        .addStringOption((option) =>
+        .addStringOption(option =>
           option
             .setName("id-or-name")
             .setDescription("ID of the league")
             .setAutocomplete(true)
             .setRequired(true),
         )
-        .addStringOption((option) =>
+        .addStringOption(option =>
           option.setName("new-name").setDescription("Name of the league"),
         )
-        .addStringOption((option) =>
+        .addStringOption(option =>
           option
             .setName("new-description")
             .setDescription("Description of the league"),
         )
-        .addStringOption((option) =>
+        .addStringOption(option =>
           option
             .setName("new-start-date")
             .setDescription("Start date of the league. Format: MM-DD-YYYY"),
         )
-        .addStringOption((option) =>
+        .addStringOption(option =>
           option
             .setName("new-end-date")
             .setDescription("End date of the league. Format: MM-DD-YYYY"),
         )
-        .addBooleanOption((option) =>
+        .addBooleanOption(option =>
           option
             .setName("league-completed")
             .setDescription("Mark the league as completed"),
         )
-        .addChannelOption((option) =>
+        .addChannelOption(option =>
           option
             .setName("new-channel")
             .setDescription("League channel where the match will be posted")
             .addChannelTypes(ChannelType.GuildText),
         ),
     )
-    .addSubcommand((subcommand) =>
+    .addSubcommand(subcommand =>
       subcommand
         .setName("end")
         .setDescription("End an existing league")
-        .addStringOption((option) =>
+        .addStringOption(option =>
           option
             .setName("id-or-name")
             .setDescription("ID of the league")
@@ -125,7 +125,9 @@ export default {
     let result = MyCache.get("leagues") as LeagueType[];
 
     if (!result) {
-      result = (await (await db())
+      result = (await (
+        await db()
+      )
         .collection<LeagueType>("leagues")
         .find({})
         .toArray()) as LeagueType[];
@@ -133,13 +135,13 @@ export default {
     }
 
     const filtered = result.filter(
-      (result) =>
+      result =>
         result.LeagueID.includes(focusedValue) ||
         result.LeagueName.includes(focusedValue),
     );
 
     await interaction.respond(
-      filtered.map((choice) => ({
+      filtered.map(choice => ({
         name: `${choice.LeagueName} - ${choice.LeagueID}`,
         value: `${choice.LeagueID}`,
       })),

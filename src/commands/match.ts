@@ -84,11 +84,11 @@ export default {
     .setName("match")
     .setDescription("Match related commands")
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
-    .addSubcommand((subcommand) =>
+    .addSubcommand(subcommand =>
       subcommand
         .setName("info")
         .setDescription("Get match info")
-        .addStringOption((option) =>
+        .addStringOption(option =>
           option
             .setName("id-or-name")
             .setDescription("Match ID to get info")
@@ -96,103 +96,103 @@ export default {
             .setRequired(true),
         ),
     )
-    .addSubcommand((subcommand) =>
+    .addSubcommand(subcommand =>
       subcommand
         .setName("create")
         .setDescription("Create a new match")
-        .addStringOption((option) =>
+        .addStringOption(option =>
           option
             .setName("league")
             .setDescription("League ID where to create match")
             .setAutocomplete(true)
             .setRequired(true),
         )
-        .addStringOption((option) =>
+        .addStringOption(option =>
           option
             .setName("home-team")
             .setDescription("Home team name")
             .setRequired(true),
         )
-        .addStringOption((option) =>
+        .addStringOption(option =>
           option
             .setName("away-team")
             .setDescription("Away team name")
             .setRequired(true),
         )
-        .addNumberOption((option) =>
+        .addNumberOption(option =>
           option
             .setName("home-odds")
             .setDescription("Odds for home team")
             .setRequired(true),
         )
-        .addNumberOption((option) =>
+        .addNumberOption(option =>
           option
             .setName("away-odds")
             .setDescription("Odds for away team")
             .setRequired(true),
         )
-        .addStringOption((option) =>
+        .addStringOption(option =>
           option
             .setName("match-date")
             .setDescription("Date and time of the match. Format: MM-DD-YYYY")
             .setRequired(true),
         )
-        .addNumberOption((option) =>
+        .addNumberOption(option =>
           option.setName("draw-odds").setDescription("Odds for draw"),
         ),
     )
-    .addSubcommand((subcommand) =>
+    .addSubcommand(subcommand =>
       subcommand
         .setName("update")
         .setDescription("Update match details")
-        .addStringOption((option) =>
+        .addStringOption(option =>
           option
             .setName("id-or-name")
             .setDescription("Match ID to update")
             .setAutocomplete(true)
             .setRequired(true),
         )
-        .addNumberOption((option) =>
+        .addNumberOption(option =>
           option.setName("home-odds").setDescription("New home team odds"),
         )
-        .addNumberOption((option) =>
+        .addNumberOption(option =>
           option.setName("away-odds").setDescription("New away team odds"),
         )
-        .addBooleanOption((option) =>
+        .addBooleanOption(option =>
           option
             .setName("betting-lock-status")
             .setDescription("Enable/Disable betting for this match"),
         ),
     )
-    .addSubcommand((subcommand) =>
+    .addSubcommand(subcommand =>
       subcommand
         .setName("end")
         .setDescription("End a match and settle scores")
-        .addStringOption((option) =>
+        .addStringOption(option =>
           option
             .setName("id-or-name")
             .setDescription("Match ID to end")
             .setAutocomplete(true)
             .setRequired(true),
         )
-        .addNumberOption((option) =>
+        .addNumberOption(option =>
           option
             .setName("home-score")
             .setDescription("Home team score")
             .setRequired(true),
         )
-        .addNumberOption((option) =>
+        .addNumberOption(option =>
           option
             .setName("away-score")
             .setDescription("Away team score")
             .setRequired(true),
         ),
     )
-    .addSubcommand((subcommand) =>
+    .addSubcommand(subcommand =>
       subcommand
         .setName("cancel")
         .setDescription("Cancel/Void a match")
-        .addStringOption((option) =>
+        .addStringOption(option =>
           option
             .setName("id-or-name")
             .setDescription("Match ID to cancel")
@@ -203,6 +203,7 @@ export default {
 
   async autocomplete(interaction) {
     const focusedOption = interaction.options.getFocused(true);
+    const subCommand = interaction.options.getSubcommand();
 
     if (focusedOption.name === "league") {
       const focusedValue = focusedOption.value.toUpperCase();
@@ -217,13 +218,13 @@ export default {
       }
 
       const filtered = leagues.filter(
-        (league) =>
+        league =>
           league.LeagueID.includes(focusedValue) ||
           league.LeagueName.includes(focusedValue),
       );
 
       await interaction.respond(
-        filtered.map((choice) => ({
+        filtered.map(choice => ({
           name: `${choice.LeagueName}`,
           value: choice.LeagueID,
         })),
@@ -235,21 +236,41 @@ export default {
       if (!matches) {
         matches = await (await db())
           .collection<MatchType>("matches")
-          .find({ isCompleted: false })
+          .find({})
           .toArray();
         MyCache.set("matches", matches);
       }
 
-      const filtered = matches.filter((match) =>
-        match.matchId.includes(focusedValue),
-      );
+      if (subCommand === "info") {
+        const filtered = matches.filter(match =>
+          match.matchId.includes(focusedValue),
+        );
 
-      await interaction.respond(
-        filtered.map((choice) => ({
-          name: `${choice.homeTeam} vs ${choice.awayTeam}`,
-          value: choice.matchId,
-        })),
-      );
+        await interaction.respond(
+          filtered.map(choice => ({
+            name: `${choice.homeTeam} vs ${choice.awayTeam}`,
+            value: choice.matchId,
+          })),
+        );
+      } else if (
+        subCommand === "update" ||
+        subCommand === "end" ||
+        subCommand === "cancel"
+      ) {
+        const filtered = matches.filter(
+          match =>
+            match.matchId.includes(focusedValue) &&
+            !match.isCompleted &&
+            !match.isAborted,
+        );
+
+        await interaction.respond(
+          filtered.map(choice => ({
+            name: `${choice.homeTeam} vs ${choice.awayTeam}`,
+            value: choice.matchId,
+          })),
+        );
+      }
     }
   },
 
@@ -257,6 +278,9 @@ export default {
     const subcommand = interaction.options.getSubcommand();
 
     switch (subcommand) {
+      case "info":
+        await infoMatch(interaction);
+        break;
       case "create":
         await createMatch(interaction);
         break;
@@ -277,6 +301,95 @@ export default {
     }
   },
 } as Command;
+
+async function infoMatch(interaction: ChatInputCommandInteraction) {
+  await interaction.deferReply();
+
+  const matchId = interaction.options.getString("id-or-name", true);
+
+  const match = await (await db())
+    .collection<MatchType>("matches")
+    .findOne({ matchId });
+
+  if (!match) {
+    await interaction.editReply("Match not found!");
+    return;
+  }
+
+  const embed = new EmbedBuilder()
+    .setTitle(`${match.homeTeam} vs ${match.awayTeam}`)
+    .setDescription(
+      match.homeTeamHandicap || match.awayTeamHandicap
+        ? `Handicap: \nHome - ${match.homeTeam} - (${
+            match.homeTeamHandicap || "N/A"
+          })\nAway - ${match.awayTeam} - (${match.awayTeamHandicap || "N/A"})`
+        : "No handicap applied",
+    )
+    .addFields(
+      {
+        name: `homeTeam - ${match.homeTeam}`,
+        value: `Odds: ${match.homeTeamOdds}`,
+        inline: true,
+      },
+      match.drawOdds
+        ? { name: "Draw", value: `Odds: ${match.drawOdds}`, inline: true }
+        : { name: "\u200B", value: "\u200B", inline: true },
+      {
+        name: `awayTeam - ${match.awayTeam}`,
+        value: `Odds: ${match.awayTeamOdds}`,
+        inline: true,
+      },
+      {
+        name: "Total Bets",
+        value: `${match.totalBets}`,
+        inline: true,
+      },
+      {
+        name: "Home Score",
+        value: `${match.homeTeamScore || "N/A"}`,
+        inline: true,
+      },
+      {
+        name: "Away Score",
+        value: `${match.awayTeamScore || "N/A"}`,
+        inline: true,
+      },
+      {
+        name: "Is Completed",
+        value: `${match.isCompleted ? "Yes" : "No"}`,
+        inline: true,
+      },
+      {
+        name: "Is Aborted",
+        value: `${match.isAborted ? "Yes" : "No"}`,
+        inline: true,
+      },
+      {
+        name: "Is Draw",
+        value: `${match.isDraw ? "Yes" : "No"}`,
+        inline: true,
+      },
+      {
+        name: "Match Date",
+        value: `${match.matchDate}`,
+        inline: true,
+      },
+      {
+        name: "Home Team Handicap",
+        value: `${match.homeTeamHandicap || "N/A"}`,
+        inline: true,
+      },
+      {
+        name: "Away Team Handicap",
+        value: `${match.awayTeamHandicap || "N/A"}`,
+        inline: true,
+      },
+    )
+    .setColor(Colors.Blue)
+    .setTimestamp();
+
+  await interaction.editReply({ embeds: [embed] });
+}
 
 async function createMatch(interaction: ChatInputCommandInteraction) {
   await interaction.deferReply();
@@ -314,7 +427,7 @@ async function createMatch(interaction: ChatInputCommandInteraction) {
   const activeMatches = await (await db())
     .collection<MatchType>("matches")
     .countDocuments({
-      matchId: { $in: league.LeagueMatches.map((m) => m.matchId) },
+      matchId: { $in: league.LeagueMatches.map(m => m.matchId) },
       isCompleted: false,
       isAborted: false,
     });
@@ -351,12 +464,12 @@ async function createMatch(interaction: ChatInputCommandInteraction) {
       .setTitle(`${homeTeam} vs ${awayTeam}`)
       .setDescription(
         handicap
-          ? `Handicap: ${homeTeam} (${handicap})`
+          ? `Handicap: \nHome - ${homeTeam} - (${handicap})\nAway - ${awayTeam} - (${handicap})`
           : "No handicap applied",
       )
       .addFields(
         {
-          name: homeTeam,
+          name: `homeTeam - ${homeTeam}`,
           value: `Odds: ${homeOdds}`,
           inline: true,
         },
@@ -364,7 +477,7 @@ async function createMatch(interaction: ChatInputCommandInteraction) {
           ? { name: "Draw", value: `Odds: ${drawOdds}`, inline: true }
           : { name: "\u200B", value: "\u200B", inline: true },
         {
-          name: awayTeam,
+          name: `awayTeam - ${awayTeam}`,
           value: `Odds: ${awayOdds}`,
           inline: true,
         },
@@ -690,7 +803,7 @@ async function cancelMatch(interaction: ChatInputCommandInteraction) {
     return;
   }
 
-  const bulkOps = match.UserBets.map((bet) => ({
+  const bulkOps = match.UserBets.map(bet => ({
     updateOne: {
       filter: { userId: bet.UserID },
       update: {
