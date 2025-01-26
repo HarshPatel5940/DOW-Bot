@@ -10,6 +10,27 @@ export const MatchUserSchema = z.object({
 
 export type MatchUserType = z.infer<typeof MatchUserSchema>;
 
+export const HandicapType = z.enum([
+  "+0",
+  "+0.25",
+  "+0.5",
+  "+0.75",
+  "+1",
+  "+1.25",
+  "+1.5",
+  "+1.75",
+  "+2",
+  "-0",
+  "-0.25",
+  "-0.5",
+  "-0.75",
+  "-1",
+  "-1.25",
+  "-1.5",
+  "-1.75",
+  "-2",
+]);
+
 export const MatchSchema = z.object({
   _id: z.instanceof(ObjectId).optional(),
 
@@ -23,19 +44,25 @@ export const MatchSchema = z.object({
   homeTeamScore: z.number().optional(),
   awayTeamScore: z.number().optional(),
 
+  homeTeamHandicap: HandicapType.optional(),
+  awayTeamHandicap: HandicapType.optional(),
+
   homeTeamOdds: z.number().optional(),
   awayTeamOdds: z.number().optional(),
-
-  totalBets: z.number().optional().default(0),
+  draw: z.boolean().optional().default(false),
+  drawOdds: z.number().optional(),
 
   UserBets: z.array(MatchUserSchema),
+  totalBets: z.number().optional().default(0),
+  BetsLocked: z.boolean().optional().default(false),
 
   StakeGiven: z.boolean().optional().default(false),
-
   isStarted: z.boolean().optional().default(false),
   isAborted: z.boolean().optional().default(false),
   isDraw: z.boolean().optional().default(false),
   isCompleted: z.boolean().optional().default(false),
+
+  matchDate: z.date().default(() => new Date()),
 
   updatedAt: z
     .date()
