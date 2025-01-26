@@ -1,69 +1,7 @@
-/*
-/match create  --> take league info later via dropdown
-         --> a small check to have max 10 live matches per league
-         --> send the embed in the respective league channel
-         --> we can send betting buttons
-
-/match update :message
-/match end :choose winning team
-       --> then showing confirmation for settle scores and
-            --> and optionally unsetteling scores
-/match remove
-
-/match bets on
-/match bets off
-
-.2 Posting Matches
-	•	Up to 10 (or more) matches per competition, flexible enough to handle additional games if needed.
-	•	Match display in consolidated embeds (one embed per matchday or per competition round).
-	•	The embed might list each matchup as:
-
-Southampton +0.5 @1.80
-Liverpool -0.5 @2.00
-
-
-	•	Or for 1X2:
-
-Southampton 3.60  | Draw 3.30 |  Liverpool 1.80
-
-
-	•	Users will respond with their bets (Home, Away, or No Bet).
-
-2.3 Access & Security
-	•	Only Admins can add/edit matches and finalize results.
-	•	Future possibility of token-gating certain features or channels for DOGW holders.
-
-3.2 Match Details
-	•	Home Team, Away Team
-	•	Handicap lines (±0, ±0.25, ±0.5 … up to ±4.0, including quarter increments)
-	•	Odds (always decimal)
-	•	No Bet option for users who skip a match.
-
-3.3 Odds Updates
-	•	Initially, no mid-week changes to odds; lines can be “locked” upon posting or changed by admins manually (if needed).
-
-Betting Mechanics
-4.1 Placing Bets
-	•	Users pick Home, Away, or No Bet on the posted lines.
-	•	You may eventually introduce a custom stake system, but in Phase One, each bet is effectively 100 points by default.
-
-4.2 Stake & Bankroll
-	•	Users have a virtual bankroll and track profit/loss accordingly.
-	•	Each bet deducts 100 points from the user’s “bankroll” if they lose; if they win, they get stake * odds.
-
-4.3 Half & Quarter Handicap Handling
-	•	For a .25 or .75 line, half the stake is refunded in a “push” scenario.
-	•	Ideally automated: When the admin enters a final score, the system calculates if it’s half-win, half-loss, or push.
-
-4.4 Cutoffs & Locking
-	•	Bet cutoff at kickoff time. After that, no bets are accepted.
-	•	If a user attempts to place a bet after kickoff, it should be rejected automatically.
-
-4.5 Postponed/Voided Matches
-	•	If a match is postponed, all bets are voided and the user’s stake is returned.
-*/
-
 import {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
   ChannelType,
   type ChatInputCommandInteraction,
   Colors,
@@ -72,7 +10,6 @@ import {
   SlashCommandBuilder,
 } from "discord.js";
 import { ulid } from "ulid";
-import { createMatchButtons } from "../events/handleMatchButton";
 import type { Command } from "../interface";
 import type { DiscordUser } from "../types";
 import { type LeagueType, MatchSchema, type MatchType } from "../types/match";
@@ -771,8 +708,8 @@ async function endMatch(interaction: ChatInputCommandInteraction) {
     }
 
     embed.fields.push({
-      name: "Final Score",
-      value: `${match.homeTeam} ${homeScore} - ${awayScore} ${match.awayTeam}`,
+      name: `Results - ${result === "draw" ? "Draw" : result === "home" ? match.homeTeam : match.awayTeam}`,
+      value: `Home: ${match.homeTeam} ${homeScore} - Away: ${awayScore} ${match.awayTeam}`,
       inline: false,
     });
 
@@ -866,4 +803,34 @@ async function cancelMatch(interaction: ChatInputCommandInteraction) {
   }
 
   await interaction.editReply("Match cancelled and all bets refunded!");
+}
+
+export function createMatchButtons(
+  matchId: string,
+  includeDrawButton: boolean,
+) {
+  const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+    new ButtonBuilder()
+      .setCustomId(`match_bet_${matchId}_home`)
+      .setLabel("Bet Home")
+      .setStyle(ButtonStyle.Primary),
+  );
+
+  if (includeDrawButton) {
+    row.addComponents(
+      new ButtonBuilder()
+        .setCustomId(`match_bet_${matchId}_draw`)
+        .setLabel("Bet Draw")
+        .setStyle(ButtonStyle.Secondary),
+    );
+  }
+
+  row.addComponents(
+    new ButtonBuilder()
+      .setCustomId(`match_bet_${matchId}_away`)
+      .setLabel("Bet Away")
+      .setStyle(ButtonStyle.Danger),
+  );
+
+  return row;
 }

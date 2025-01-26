@@ -1,12 +1,13 @@
 import {
   ActionRowBuilder,
-  ButtonBuilder,
-  type ButtonInteraction,
-  ButtonStyle,
   Colors,
   EmbedBuilder,
   Events,
   type Interaction,
+  ModalBuilder,
+  type ModalSubmitInteraction,
+  TextInputBuilder,
+  TextInputStyle,
 } from "discord.js";
 
 import { type MatchType, MatchUserSchema } from "../types/match";
@@ -18,8 +19,7 @@ export default {
 
   execute: async (interaction: Interaction) => {
     if (!interaction.guild) return;
-    if (!interaction.isButton()) return;
-    console.log(interaction.customId);
+    if (!interaction.isButton() && !interaction.isModalSubmit()) return;
 
     const matchId = interaction.customId.split("_")[2] as string;
     const betType = interaction.customId.split("_")[3] as
@@ -29,14 +29,44 @@ export default {
 
     if (!matchId || !betType) return;
 
-    await handleMatchBet(interaction, matchId, betType);
+    if (
+      interaction.isModalSubmit() &&
+      interaction.customId.startsWith("match_stake_")
+    ) {
+      const stakeAmount = Number.parseInt(
+        interaction.fields.getTextInputValue("stake_amount"),
+      );
+
+      if (Number.isNaN(stakeAmount) || stakeAmount < 1) {
+        await interaction.reply({
+          content: "Please enter a valid stake amount!",
+          ephemeral: true,
+        });
+        return;
+      }
+
+      await handleMatchBet(
+        interaction,
+        matchId,
+        betType as "home" | "away" | "draw",
+        stakeAmount,
+      );
+      return;
+    }
+    if (!interaction.isButton()) return;
+    console.log(interaction.customId);
+
+    const modal = createBetModal(matchId, betType);
+    await interaction.showModal(modal);
+    return;
   },
 };
 
 async function handleMatchBet(
-  interaction: ButtonInteraction,
+  interaction: ModalSubmitInteraction,
   matchId: string,
   betType: "home" | "away" | "draw",
+  stakeAmount: number,
 ) {
   await interaction.deferReply({ ephemeral: true });
 
@@ -79,13 +109,13 @@ async function handleMatchBet(
       userId: interaction.user.id,
       username: interaction.user.username,
 
-      userPoints: 100,
+      userPoints: 250,
     });
 
     await (await db()).collection<DiscordUser>("users").insertOne(user);
   }
 
-  if (user.userPoints < 100) {
+  if (user.userPoints < stakeAmount) {
     await interaction.editReply(
       "You don't have enough points to place this bet!",
     );
@@ -94,7 +124,7 @@ async function handleMatchBet(
 
   const newBet = MatchUserSchema.parse({
     UserID: interaction.user.id,
-    StakeAmount: 100,
+    StakeAmount: stakeAmount,
     StakeOn: betType,
   });
 
@@ -110,7 +140,7 @@ async function handleMatchBet(
     { userId: interaction.user.id },
     {
       $inc: {
-        userPoints: -100,
+        userPoints: -stakeAmount,
         BetsPlaced: 1,
       },
     },
@@ -119,39 +149,28 @@ async function handleMatchBet(
   const embed = new EmbedBuilder()
     .setTitle("Bet Placed Successfully!")
     .setDescription(
-      `You bet 100 points on ${betType === "home" ? match.homeTeam : match.awayTeam}`,
+      `You bet ${stakeAmount} points on ${betType === "home" ? match.homeTeam : match.awayTeam}`,
     )
     .setColor(Colors.Green);
 
   await interaction.editReply({ embeds: [embed] });
 }
 
-export function createMatchButtons(
-  matchId: string,
-  includeDrawButton: boolean,
-) {
-  const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-    new ButtonBuilder()
-      .setCustomId(`match_bet_${matchId}_home`)
-      .setLabel("Bet Home")
-      .setStyle(ButtonStyle.Primary),
+function createBetModal(matchId: string, betType: string) {
+  const stakeInput = new TextInputBuilder()
+    .setCustomId("stake_amount")
+    .setLabel("Enter your stake amount")
+    .setStyle(TextInputStyle.Short)
+    .setMinLength(1)
+    .setMaxLength(4)
+    .setRequired(true);
+
+  const actionRow = new ActionRowBuilder<TextInputBuilder>().addComponents(
+    stakeInput,
   );
 
-  if (includeDrawButton) {
-    row.addComponents(
-      new ButtonBuilder()
-        .setCustomId(`match_bet_${matchId}_draw`)
-        .setLabel("Bet Draw")
-        .setStyle(ButtonStyle.Secondary),
-    );
-  }
-
-  row.addComponents(
-    new ButtonBuilder()
-      .setCustomId(`match_bet_${matchId}_away`)
-      .setLabel("Bet Away")
-      .setStyle(ButtonStyle.Danger),
-  );
-
-  return row;
+  return new ModalBuilder()
+    .setCustomId(`match_stake_${matchId}_${betType}`)
+    .setTitle("Place Your Bet")
+    .addComponents(actionRow);
 }
