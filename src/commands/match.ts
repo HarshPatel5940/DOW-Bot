@@ -503,7 +503,7 @@ async function createMatch(interaction: ChatInputCommandInteraction) {
       .setTimestamp();
 
     await interaction.editReply({
-      content: `Match created successfully! ID: ${newMatch.matchId}`,
+      content: `Match created successfully! ID: \`${newMatch.matchId}\``,
       embeds: [myEmbed],
     });
   } catch (error) {
