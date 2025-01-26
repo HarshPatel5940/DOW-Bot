@@ -1,5 +1,5 @@
-import { type Db, MongoClient } from 'mongodb';
-import config from '../config';
+import { type Db, MongoClient } from "mongodb";
+import config from "../config";
 
 let db: Db;
 
@@ -22,7 +22,7 @@ export async function initDbCollections() {
   }
 
   const collections = await db.collections();
-  const myCollections = ['users', 'matches', 'leagues'];
+  const myCollections = ["users", "matches", "leagues"];
 
   for (const collection of myCollections) {
     if (!collections.map(c => c.collectionName).includes(collection)) {
@@ -31,5 +31,5 @@ export async function initDbCollections() {
     }
   }
 
-  console.log('Database Ready!');
+  console.log("Database Ready!");
 }

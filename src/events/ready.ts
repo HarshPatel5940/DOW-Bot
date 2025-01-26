@@ -1,4 +1,4 @@
-import { ActivityType, type Client, Events } from 'discord.js';
+import { ActivityType, type Client, Events } from "discord.js";
 
 export default {
   name: Events.ClientReady,
@@ -8,7 +8,7 @@ export default {
     console.log(`Logged in as ${client.user?.tag}`);
 
     client.user?.setActivity({
-      name: 'HarshPatel5940 creating bots',
+      name: "HarshPatel5940 creating bots",
       type: ActivityType.Watching,
     });
   },

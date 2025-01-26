@@ -6,7 +6,7 @@ import {
   Events,
   type Interaction,
   type Message,
-} from 'discord.js';
+} from "discord.js";
 
 export default {
   name: Events.InteractionCreate,
@@ -15,8 +15,8 @@ export default {
   async execute(interaction: Interaction) {
     if (!interaction.guild) return;
     if (!interaction.isModalSubmit()) return;
-    if (!interaction.customId.startsWith('echo-')) return;
-    const [action, channelId, mention] = interaction.customId.split('-');
+    if (!interaction.customId.startsWith("echo-")) return;
+    const [action, channelId, mention] = interaction.customId.split("-");
     if (!action || !channelId) return;
     let message: Message;
     const channel = interaction.guild.channels.cache.get(channelId);
@@ -30,7 +30,7 @@ export default {
       channel.type !== ChannelType.GuildAnnouncement
     ) {
       await interaction.reply({
-        content: 'Invalid Channel Provided. Please Provide a text channel',
+        content: "Invalid Channel Provided. Please Provide a text channel",
       });
       return;
     }
@@ -39,16 +39,16 @@ export default {
     ): ActionRowBuilder<ButtonBuilder> => {
       const delete_message = new ButtonBuilder()
         .setCustomId(`delete--${channelId}-${messageId}`)
-        .setLabel('Delete')
+        .setLabel("Delete")
         .setStyle(ButtonStyle.Danger);
       return new ActionRowBuilder<ButtonBuilder>().addComponents(
         delete_message,
       );
     };
 
-    const title = interaction.fields.getTextInputValue('title');
-    const description = interaction.fields.getTextInputValue('description');
-    if (mention !== 'none') {
+    const title = interaction.fields.getTextInputValue("title");
+    const description = interaction.fields.getTextInputValue("description");
+    if (mention !== "none") {
       message = await channel.send({
         content: `📢 Announcement ${mention}\n# ${title}\n${description}`,
       });

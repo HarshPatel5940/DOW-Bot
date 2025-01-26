@@ -1,12 +1,12 @@
-import type { Client, Collection } from 'discord.js';
-import type { Command } from '../interface';
-import { getFiles } from './getFiles';
+import type { Client, Collection } from "discord.js";
+import type { Command } from "../interface";
+import { getFiles } from "./getFiles";
 
 export async function loadEvents(
   client: Client,
   commands: Collection<string, Command>,
 ) {
-  const files = await getFiles('events');
+  const files = await getFiles("events");
   const events: string[] = [];
   await Promise.all(
     files.map(async (file: string) => {
@@ -26,7 +26,7 @@ export async function loadEvents(
         }
         events.push(event);
       } catch (err) {
-        console.log(`Failed to Load Event: ${file.split('/').pop()}`);
+        console.log(`Failed to Load Event: ${file.split("/").pop()}`);
         console.log(err);
       }
     }),

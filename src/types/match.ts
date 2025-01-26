@@ -1,10 +1,10 @@
-import { ObjectId } from 'mongodb';
-import { z } from 'zod';
+import { ObjectId } from "mongodb";
+import { z } from "zod";
 
 export const MatchUserSchema = z.object({
   UserID: z.string(),
   StakeAmount: z.number().optional().default(100),
-  StakeOn: z.enum(['home', 'away']).optional(),
+  StakeOn: z.enum(["home", "away"]).optional(),
   StakeGiven: z.boolean().optional().default(false),
 });
 

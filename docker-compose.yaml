@@ -1,4 +1,14 @@
 services:
+  builder:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: DOW-Bot-Builder
+    restart: always
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: pnpm run build && pnpm run start
   mongo:
     image: mongo:latest
     container_name: DOW-Bot-Mongo

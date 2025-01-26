@@ -4,117 +4,116 @@ import {
   Colors,
   EmbedBuilder,
   PermissionFlagsBits,
-  REST,
   SlashCommandBuilder,
-} from 'discord.js';
-import { ulid } from 'ulid';
-import { ZodError } from 'zod';
-import type { Command } from '../interface';
-import { LeagueSchema, type LeagueType } from '../types/match';
-import { MyCache } from '../utils/cache';
-import db from '../utils/database';
+} from "discord.js";
+import { ulid } from "ulid";
+import { ZodError } from "zod";
+import type { Command } from "../interface";
+import { LeagueSchema, type LeagueType } from "../types/match";
+import { MyCache } from "../utils/cache";
+import db from "../utils/database";
 
 export default {
   data: new SlashCommandBuilder()
-    .setName('league')
-    .setDescription('League related commands')
+    .setName("league")
+    .setDescription("League related commands")
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
     .addSubcommand(subcommand =>
       subcommand
-        .setName('info')
-        .setDescription('get info about existing league')
+        .setName("info")
+        .setDescription("get info about existing league")
         .addStringOption(option =>
           option
-            .setName('id-or-name')
-            .setDescription('ID of the league')
+            .setName("id-or-name")
+            .setDescription("ID of the league")
             .setAutocomplete(true)
             .setRequired(true),
         ),
     )
     .addSubcommand(subcommand =>
       subcommand
-        .setName('add')
-        .setDescription('Add a new league')
+        .setName("add")
+        .setDescription("Add a new league")
         .addStringOption(option =>
           option
-            .setName('name')
-            .setDescription('Name of the league')
+            .setName("name")
+            .setDescription("Name of the league")
             .setRequired(true),
         )
         .addStringOption(option =>
           option
-            .setName('description')
-            .setDescription('Description of the league')
+            .setName("description")
+            .setDescription("Description of the league")
             .setRequired(true),
         )
         .addChannelOption(option =>
           option
-            .setName('channel')
-            .setDescription('Channel to send league updates')
+            .setName("channel")
+            .setDescription("Channel to send league updates")
             .addChannelTypes(ChannelType.GuildText)
             .setRequired(true),
         )
         .addStringOption(option =>
           option
-            .setName('start-date')
-            .setDescription('Start date of the league')
+            .setName("start-date")
+            .setDescription("Start date of the league")
             .setRequired(true),
         )
         .addStringOption(option =>
           option
-            .setName('end-date')
-            .setDescription('End date of the league')
+            .setName("end-date")
+            .setDescription("End date of the league")
             .setRequired(true),
         ),
     )
     .addSubcommand(subcommand =>
       subcommand
-        .setName('update')
-        .setDescription('Update an existing league')
+        .setName("update")
+        .setDescription("Update an existing league")
         .addStringOption(option =>
           option
-            .setName('id-or-name')
-            .setDescription('ID of the league')
+            .setName("id-or-name")
+            .setDescription("ID of the league")
             .setAutocomplete(true)
             .setRequired(true),
         )
         .addStringOption(option =>
-          option.setName('new-name').setDescription('Name of the league'),
+          option.setName("new-name").setDescription("Name of the league"),
         )
         .addStringOption(option =>
           option
-            .setName('new-description')
-            .setDescription('Description of the league'),
+            .setName("new-description")
+            .setDescription("Description of the league"),
         )
         .addStringOption(option =>
           option
-            .setName('new-start-date')
-            .setDescription('Start date of the league. Format: MM-DD-YYYY'),
+            .setName("new-start-date")
+            .setDescription("Start date of the league. Format: MM-DD-YYYY"),
         )
         .addStringOption(option =>
           option
-            .setName('new-end-date')
-            .setDescription('End date of the league. Format: MM-DD-YYYY'),
+            .setName("new-end-date")
+            .setDescription("End date of the league. Format: MM-DD-YYYY"),
         )
         .addBooleanOption(option =>
           option
-            .setName('league-completed')
-            .setDescription('Mark the league as completed'),
+            .setName("league-completed")
+            .setDescription("Mark the league as completed"),
         )
         .addChannelOption(option =>
           option
-            .setName('new-channel')
-            .setDescription('League channel where the match will be posted'),
+            .setName("new-channel")
+            .setDescription("League channel where the match will be posted"),
         ),
     )
     .addSubcommand(subcommand =>
       subcommand
-        .setName('end')
-        .setDescription('End an existing league')
+        .setName("end")
+        .setDescription("End an existing league")
         .addStringOption(option =>
           option
-            .setName('id-or-name')
-            .setDescription('ID of the league')
+            .setName("id-or-name")
+            .setDescription("ID of the league")
             .setAutocomplete(true)
             .setRequired(true),
         ),
@@ -122,16 +121,16 @@ export default {
   async autocomplete(interaction) {
     const focusedValue = interaction.options.getFocused().toUpperCase();
 
-    let result = MyCache.get('leagues') as LeagueType[];
+    let result = MyCache.get("leagues") as LeagueType[];
 
     if (!result) {
       result = (await (
         await db()
       )
-        .collection<LeagueType>('leagues')
+        .collection<LeagueType>("leagues")
         .find({})
         .toArray()) as LeagueType[];
-      MyCache.set('leagues', result);
+      MyCache.set("leagues", result);
     }
 
     const filtered = result.filter(
@@ -151,64 +150,64 @@ export default {
   async execute(interaction) {
     const subcommand = interaction.options.getSubcommand();
 
-    if (subcommand === 'info') {
-      await interaction.reply('Getting info about the league');
+    if (subcommand === "info") {
+      await interaction.reply("Getting info about the league");
       await getLeagueInfo(interaction);
-    } else if (subcommand === 'add') {
-      await interaction.reply('Adding a new league');
+    } else if (subcommand === "add") {
+      await interaction.reply("Adding a new league");
       await addLeague(interaction);
-    } else if (subcommand === 'update') {
-      await interaction.reply('Updating an existing league');
+    } else if (subcommand === "update") {
+      await interaction.reply("Updating an existing league");
       await updateLeague(interaction);
-    } else if (subcommand === 'end') {
-      await interaction.reply('Ending an existing league');
+    } else if (subcommand === "end") {
+      await interaction.reply("Ending an existing league");
       await endLeague(interaction);
     } else {
-      await interaction.reply('Invalid subcommand provided! Expired?');
+      await interaction.reply("Invalid subcommand provided! Expired?");
     }
   },
 } as Command;
 
 async function getLeagueInfo(interaction: ChatInputCommandInteraction) {
-  const id = interaction.options.getString('id-or-name');
+  const id = interaction.options.getString("id-or-name");
 
   if (!id) {
-    await interaction.editReply('Please provide the ID of the league');
+    await interaction.editReply("Please provide the ID of the league");
     return;
   }
 
   const result = await (await db())
-    .collection<LeagueType>('leagues')
+    .collection<LeagueType>("leagues")
     .findOne({ LeagueID: id });
 
   if (!result) {
-    await interaction.editReply('League not found!');
+    await interaction.editReply("League not found!");
     return;
   }
 
   const myEmbed = new EmbedBuilder()
-    .setTitle('League Details')
-    .setDescription('League has been fetched successfully!')
+    .setTitle("League Details")
+    .setDescription("League has been fetched successfully!")
     .addFields(
-      { name: 'ID', value: `\`${result.LeagueID}\``, inline: true },
-      { name: 'Name', value: result.LeagueName, inline: true },
+      { name: "ID", value: `\`${result.LeagueID}\``, inline: true },
+      { name: "Name", value: result.LeagueName, inline: true },
       {
-        name: 'Description',
+        name: "Description",
         value: result.LeagueDescription,
         inline: true,
       },
       {
-        name: 'Channel',
+        name: "Channel",
         value: `<#${result.LeagueChannel}>`,
         inline: true,
       },
       {
-        name: 'Start Date',
+        name: "Start Date",
         value: result.LeagueStartDate.toDateString(),
         inline: true,
       },
       {
-        name: 'End Date',
+        name: "End Date",
         value: result.LeagueEndDate.toDateString(),
         inline: true,
       },
@@ -216,23 +215,23 @@ async function getLeagueInfo(interaction: ChatInputCommandInteraction) {
     .setTimestamp()
     .setColor(Colors.Greyple);
 
-  return await interaction.editReply({ content: '', embeds: [myEmbed] });
+  return await interaction.editReply({ content: "", embeds: [myEmbed] });
 }
 
 async function addLeague(interaction: ChatInputCommandInteraction) {
-  const name = interaction.options.getString('name');
-  const description = interaction.options.getString('description');
-  const channel = interaction.options.getChannel('channel');
-  const startDate = interaction.options.getString('start-date');
-  const endDate = interaction.options.getString('end-date');
+  const name = interaction.options.getString("name");
+  const description = interaction.options.getString("description");
+  const channel = interaction.options.getChannel("channel");
+  const startDate = interaction.options.getString("start-date");
+  const endDate = interaction.options.getString("end-date");
 
   if (!name || !description || !channel || !startDate || !endDate) {
-    await interaction.editReply('Please provide all the required fields');
+    await interaction.editReply("Please provide all the required fields");
     return;
   }
 
   const result = await (await db())
-    .collection<LeagueType>('leagues')
+    .collection<LeagueType>("leagues")
     .findOne({ LeagueChannel: channel.id });
 
   if (result) {
@@ -256,40 +255,40 @@ async function addLeague(interaction: ChatInputCommandInteraction) {
     });
 
     const result = await (await db())
-      .collection<LeagueType>('leagues')
+      .collection<LeagueType>("leagues")
       .insertOne({
         ...newLeague,
       });
 
     if (!result.insertedId) {
-      return await interaction.editReply('Error While Inserting!');
+      return await interaction.editReply("Error While Inserting!");
     }
 
     const myEmbed = new EmbedBuilder()
-      .setTitle('League Added')
+      .setTitle("League Added")
       .setDescription(
-        'League has been added successfully with the following details!',
+        "League has been added successfully with the following details!",
       )
       .addFields(
-        { name: 'ID', value: `\`${newLeague.LeagueID}\``, inline: true },
-        { name: 'Name', value: newLeague.LeagueName, inline: true },
+        { name: "ID", value: `\`${newLeague.LeagueID}\``, inline: true },
+        { name: "Name", value: newLeague.LeagueName, inline: true },
         {
-          name: 'Description',
+          name: "Description",
           value: newLeague.LeagueDescription,
           inline: true,
         },
         {
-          name: 'Channel',
+          name: "Channel",
           value: `<#${newLeague.LeagueChannel}>`,
           inline: true,
         },
         {
-          name: 'Start Date',
+          name: "Start Date",
           value: newLeague.LeagueStartDate.toDateString(),
           inline: true,
         },
         {
-          name: 'End Date',
+          name: "End Date",
           value: newLeague.LeagueEndDate.toDateString(),
           inline: true,
         },
@@ -297,11 +296,11 @@ async function addLeague(interaction: ChatInputCommandInteraction) {
       .setTimestamp()
       .setColor(Colors.Green);
 
-    return await interaction.editReply({ content: '', embeds: [myEmbed] });
+    return await interaction.editReply({ content: "", embeds: [myEmbed] });
   } catch (err) {
     if (err instanceof ZodError) {
       await interaction.editReply(
-        'Invalid input provided! Maybe DATE is not MM-DD-YYYY ? Please check console!',
+        "Invalid input provided! Maybe DATE is not MM-DD-YYYY ? Please check console!",
       );
 
       console.error(err);
@@ -309,22 +308,22 @@ async function addLeague(interaction: ChatInputCommandInteraction) {
     }
 
     await interaction.editReply(
-      'An unknown error occurred while adding the league',
+      "An unknown error occurred while adding the league",
     );
   }
 }
 
 async function updateLeague(interaction: ChatInputCommandInteraction) {
-  const id = interaction.options.getString('id-or-name');
-  const newName = interaction.options.getString('new-name');
-  const newDescription = interaction.options.getString('new-description');
-  const newStartDate = interaction.options.getString('new-start-date');
-  const newEndDate = interaction.options.getString('new-end-date');
-  const leagueCompleted = interaction.options.getBoolean('league-completed');
-  const newChannel = interaction.options.getChannel('new-channel');
+  const id = interaction.options.getString("id-or-name");
+  const newName = interaction.options.getString("new-name");
+  const newDescription = interaction.options.getString("new-description");
+  const newStartDate = interaction.options.getString("new-start-date");
+  const newEndDate = interaction.options.getString("new-end-date");
+  const leagueCompleted = interaction.options.getBoolean("league-completed");
+  const newChannel = interaction.options.getChannel("new-channel");
 
   if (!id) {
-    await interaction.editReply('Please provide the ID of the league');
+    await interaction.editReply("Please provide the ID of the league");
     return;
   }
 
@@ -336,16 +335,16 @@ async function updateLeague(interaction: ChatInputCommandInteraction) {
     !newChannel &&
     !leagueCompleted
   ) {
-    await interaction.editReply('Please provide at least one field to update');
+    await interaction.editReply("Please provide at least one field to update");
     return;
   }
 
   const result = await (await db())
-    .collection<LeagueType>('leagues')
+    .collection<LeagueType>("leagues")
     .findOne({ LeagueID: id });
 
   if (!result) {
-    await interaction.editReply('League not found!');
+    await interaction.editReply("League not found!");
     return;
   }
 
@@ -373,7 +372,7 @@ async function updateLeague(interaction: ChatInputCommandInteraction) {
 
   if (newChannel) {
     const result = await (await db())
-      .collection<LeagueType>('leagues')
+      .collection<LeagueType>("leagues")
       .findOne({ LeagueChannel: newChannel.id });
 
     if (result) {
@@ -389,7 +388,7 @@ async function updateLeague(interaction: ChatInputCommandInteraction) {
   newResult.updatedAt = new Date();
 
   const updatedResult = await (await db())
-    .collection<LeagueType>('leagues')
+    .collection<LeagueType>("leagues")
     .updateOne(
       {
         LeagueID: id,
@@ -403,33 +402,33 @@ async function updateLeague(interaction: ChatInputCommandInteraction) {
     );
 
   if (updatedResult.modifiedCount === 0) {
-    await interaction.editReply('No changes made!');
+    await interaction.editReply("No changes made!");
     return;
   }
 
   const myEmbed = new EmbedBuilder()
-    .setTitle('Updated League Details')
-    .setDescription('League has been updated successfully!')
+    .setTitle("Updated League Details")
+    .setDescription("League has been updated successfully!")
     .addFields(
-      { name: 'ID', value: `\`${newResult.LeagueID}\``, inline: true },
-      { name: 'Name', value: newResult.LeagueName, inline: true },
+      { name: "ID", value: `\`${newResult.LeagueID}\``, inline: true },
+      { name: "Name", value: newResult.LeagueName, inline: true },
       {
-        name: 'Description',
+        name: "Description",
         value: newResult.LeagueDescription,
         inline: true,
       },
       {
-        name: 'Channel',
+        name: "Channel",
         value: `<#${newResult.LeagueChannel}>`,
         inline: true,
       },
       {
-        name: 'Start Date',
+        name: "Start Date",
         value: newResult.LeagueStartDate.toDateString(),
         inline: true,
       },
       {
-        name: 'End Date',
+        name: "End Date",
         value: newResult.LeagueEndDate.toDateString(),
         inline: true,
       },
@@ -437,28 +436,28 @@ async function updateLeague(interaction: ChatInputCommandInteraction) {
     .setTimestamp()
     .setColor(Colors.Blurple);
 
-  return await interaction.editReply({ content: '', embeds: [myEmbed] });
+  return await interaction.editReply({ content: "", embeds: [myEmbed] });
 }
 
 async function endLeague(interaction: ChatInputCommandInteraction) {
-  const id = interaction.options.getString('id-or-name');
+  const id = interaction.options.getString("id-or-name");
 
   if (!id) {
-    await interaction.editReply('Please provide the ID of the league');
+    await interaction.editReply("Please provide the ID of the league");
     return;
   }
 
   const result = await (await db())
-    .collection<LeagueType>('leagues')
+    .collection<LeagueType>("leagues")
     .updateOne(
       { LeagueID: id },
       { $set: { IsLeagueCompleted: true, updatedAt: new Date() } },
     );
 
   if (result.modifiedCount === 0) {
-    await interaction.editReply('No changes made!');
+    await interaction.editReply("No changes made!");
     return;
   }
 
-  return await interaction.editReply('League has been marked as completed!');
+  return await interaction.editReply("League has been marked as completed!");
 }

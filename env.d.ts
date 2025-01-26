@@ -1,4 +1,4 @@
-import type { EnvSchemaType } from './src/config';
+import type { EnvSchemaType } from "./src/config";
 
 declare global {
   namespace NodeJS {
