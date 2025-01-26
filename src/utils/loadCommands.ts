@@ -21,6 +21,7 @@ export async function loadCommands() {
         commandsData.push(command.data.toJSON());
       } catch (err) {
         console.log(`Failed to Load Event: ${file.split('/').pop()}`);
+        console.error(err);
       }
     }),
   );

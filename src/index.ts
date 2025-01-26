@@ -6,6 +6,7 @@ import {
   loadEvents,
   registerSlashCommands,
 } from './utils';
+import { initDbCollections } from './utils/database';
 
 async function initialiseBot() {
   const client = new Client({
@@ -15,6 +16,7 @@ async function initialiseBot() {
   try {
     await loadCommands();
     await loadEvents(client, getCommands());
+    // await initDbCollections();
     await registerSlashCommands();
     await client.login(config.BOT_TOKEN);
   } catch (err) {

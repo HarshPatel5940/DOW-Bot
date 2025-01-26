@@ -1,40 +1,14 @@
 import { ObjectId } from 'mongodb';
 import { z } from 'zod';
 
-export const playerClasses = {
-  scholar: '🇸​​🇨​​🇭​​🇴​​🇱​​🇦​​🇷​ - Scholar',
-  champion: '​🇨​​🇭​​🇦​​🇲​​🇵​​🇮​​🇺​​🇳​ - Champion',
-  paladin: '​🇵​​🇦​​🇱​​🇦​​🇩​​🇮​​🇳​ - Paladin',
-  high_priest: '​🇭​​🇮​​🇬​​🇭​ 🇵​​🇷​​🇮​​🇪​​🇸​​🇹​ - High Priest',
-  high_wizard: '🇭​​🇮​​🇬​​🇭​ ​🇼​​🇮​​🇿​​🇦​​🇷​​🇩 - High Wizard',
-  minstrel: '​🇲​​🇮​​🇳​​🇸​​🇹​​🇷​​🇪​​🇱 - Minstrel',
-  wildCardClass: '🃏 - 7th' as wildCardClassType,
-};
-
-export const playerClasses2 = {
-  scholar: 'Scholar',
-  champion: 'Champion',
-  paladin: 'Paladin',
-  high_priest: 'High Priest',
-  high_wizard: 'High Wizard',
-  minstrel: 'Minstrel',
-  wildCardClass: '7th',
-};
-
-export type wildCardClassType = 'gypsy' | 'stalker' | 'sniper' | '7th';
-
-export type PlayerClassesType = keyof typeof playerClasses2 | wildCardClassType;
-
-export const PlayerSchema = z.object({
-  PlayerID: z.string(),
-  PlayerName: z.string(),
-  PlayerClass: z.enum(
-    Object.keys(playerClasses2) as [PlayerClassesType, ...PlayerClassesType[]],
-  ),
-  PlayerMiscInfo: z.string().optional(),
+export const MatchUserSchema = z.object({
+  UserID: z.string(),
+  StakeAmount: z.number().optional().default(100),
+  StakeOn: z.enum(['home', 'away']).optional(),
+  StakeGiven: z.boolean().optional().default(false),
 });
 
-export type PlayerType = z.infer<typeof PlayerSchema>;
+export type MatchUserType = z.infer<typeof MatchUserSchema>;
 
 export const MatchSchema = z.object({
   _id: z.instanceof(ObjectId).optional(),
@@ -43,19 +17,26 @@ export const MatchSchema = z.object({
   matchMsgChannel: z.string(),
   matchMsgId: z.string(),
 
-  matchPlayers: z.array(PlayerSchema).max(14),
-  // TODO: change to redTeam and blueTeam
-  redTeam: z.array(PlayerSchema).max(7),
-  blueTeam: z.array(PlayerSchema).max(7),
+  homeTeam: z.string(),
+  awayTeam: z.string(),
 
-  winner: z.enum(['red', 'blue', 'draw']).optional(),
+  homeTeamScore: z.number().optional(),
+  awayTeamScore: z.number().optional(),
+
+  homeTeamOdds: z.number().optional(),
+  awayTeamOdds: z.number().optional(),
+
+  totalBets: z.number().optional().default(0),
+
+  UserBets: z.array(MatchUserSchema),
+
+  StakeGiven: z.boolean().optional().default(false),
 
   isStarted: z.boolean().optional().default(false),
   isAborted: z.boolean().optional().default(false),
   isDraw: z.boolean().optional().default(false),
   isCompleted: z.boolean().optional().default(false),
 
-  playedAt: z.date().optional(),
   updatedAt: z
     .date()
     .optional()
@@ -63,3 +44,30 @@ export const MatchSchema = z.object({
 });
 
 export type MatchType = z.infer<typeof MatchSchema>;
+
+export const LeagueSchema = z.object({
+  _id: z.instanceof(ObjectId).optional(),
+
+  LeagueID: z.string().ulid(),
+  LeagueName: z.string(),
+  LeagueDescription: z.string(),
+  LeagueChannel: z.string(),
+
+  LeagueStartDate: z.date(),
+  LeagueEndDate: z.date(),
+
+  LeagueMatches: z.array(
+    z.object({
+      matchId: z.string().ulid(),
+    }),
+  ),
+
+  IsLeagueCompleted: z.boolean().optional().default(false),
+
+  updatedAt: z
+    .date()
+    .optional()
+    .default(() => new Date()),
+});
+
+export type LeagueType = z.infer<typeof LeagueSchema>;
