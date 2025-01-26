@@ -16,7 +16,7 @@ async function initialiseBot() {
   try {
     await loadCommands();
     await loadEvents(client, getCommands());
-    // await initDbCollections();
+    await initDbCollections();
     await registerSlashCommands();
     await client.login(config.BOT_TOKEN);
   } catch (err) {
