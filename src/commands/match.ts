@@ -76,6 +76,11 @@ export default {
         )
         .addNumberOption(option =>
           option.setName("draw-odds").setDescription("Odds for draw"),
+        )
+        .addStringOption(option =>
+          option
+            .setName("handicap")
+            .setDescription("Handicap for both teams. Example: +1.5 or -1.5"),
         ),
     )
     .addSubcommand(subcommand =>
