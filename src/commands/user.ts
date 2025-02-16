@@ -146,11 +146,6 @@ async function handleStats(interaction: ChatInputCommandInteraction) {
         inline: true,
       },
       {
-        name: "Bets Withdrawn",
-        value: userData.BetsWithdrawn.toString(),
-        inline: true,
-      },
-      {
         name: "Correct Bets",
         value: userData.BetsCorrect.toString(),
         inline: true,
@@ -180,6 +175,26 @@ async function handleStats(interaction: ChatInputCommandInteraction) {
       {
         name: "Max Lose Streak",
         value: userData.LooseStreakMax.toString(),
+        inline: true,
+      },
+      {
+        name: "1x2 Investment",
+        value: userData.Investment1x2.toString(),
+        inline: true,
+      },
+      {
+        name: "Asian Handicap Investment",
+        value: userData.InvestmentAsianHandicap.toString(),
+        inline: true,
+      },
+      {
+        name: "1x2 ROI",
+        value: userData.ROI1x2.toString(),
+        inline: true,
+      },
+      {
+        name: "Asian Handicap ROI",
+        value: userData.ROIAsianHandicap.toString(),
         inline: true,
       },
     )
@@ -250,7 +265,7 @@ async function handlePointsRemove(interaction: ChatInputCommandInteraction) {
   const myEmbed = new EmbedBuilder()
     .setTitle(`Points Removed for ${targetUser.username}`)
     .setDescription(
-      `Removed ${amount} points to <@${targetUser.id}>.\n\nNew balance: ${result.userPoints}`,
+      `Removed ${amount} points from <@${targetUser.id}>.\n\nNew balance: ${result.userPoints}`,
     )
     .setColor(Colors.Green)
     .setTimestamp();

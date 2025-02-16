@@ -21,11 +21,142 @@ export default {
     .setName("match")
     .setDescription("Match related commands")
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
-    .addSubcommand(subcommand =>
+    .addSubcommandGroup((group) =>
+      group
+        .setName("create")
+        .setDescription("Create a new match")
+        .addSubcommand((subcommand) =>
+          subcommand
+            .setName("1x2")
+            .setDescription("Create a new 1x2 match")
+            .addStringOption((option) =>
+              option
+                .setName("league")
+                .setDescription("League ID where to create match")
+                .setAutocomplete(true)
+                .setRequired(true),
+            )
+            .addStringOption((option) =>
+              option
+                .setName("home-team")
+                .setDescription("Home team name")
+                .setRequired(true),
+            )
+            .addStringOption((option) =>
+              option
+                .setName("away-team")
+                .setDescription("Away team name")
+                .setRequired(true),
+            )
+            .addNumberOption((option) =>
+              option
+                .setName("home-odds")
+                .setDescription("Odds for home team")
+                .setRequired(true),
+            )
+            .addNumberOption((option) =>
+              option
+                .setName("away-odds")
+                .setDescription("Odds for away team")
+                .setRequired(true),
+            )
+            .addNumberOption((option) =>
+              option
+                .setName("draw-odds")
+                .setDescription("Odds for draw")
+                .setRequired(true),
+            )
+            .addStringOption((option) =>
+              option
+                .setName("match-date")
+                .setDescription(
+                  "Date and time of the match. Format: MM-DD-YYYY",
+                )
+                .setRequired(true),
+            )
+            .addStringOption((option) =>
+              option
+                .setName("kickoff-time")
+                .setDescription("Kickoff time of the match. Format: HH:MM")
+                .setRequired(true),
+            )
+            .addStringOption((option) =>
+              option
+                .setName("venue")
+                .setDescription("Venue of the match")
+                .setRequired(true),
+            ),
+        )
+        .addSubcommand((subcommand) =>
+          subcommand
+            .setName("asian-handicap")
+            .setDescription("Create a new Asian handicap match")
+            .addStringOption((option) =>
+              option
+                .setName("league")
+                .setDescription("League ID where to create match")
+                .setAutocomplete(true)
+                .setRequired(true),
+            )
+            .addStringOption((option) =>
+              option
+                .setName("home-team")
+                .setDescription("Home team name")
+                .setRequired(true),
+            )
+            .addStringOption((option) =>
+              option
+                .setName("away-team")
+                .setDescription("Away team name")
+                .setRequired(true),
+            )
+            .addNumberOption((option) =>
+              option
+                .setName("home-odds")
+                .setDescription("Odds for home team")
+                .setRequired(true),
+            )
+            .addNumberOption((option) =>
+              option
+                .setName("away-odds")
+                .setDescription("Odds for away team")
+                .setRequired(true),
+            )
+            .addStringOption((option) =>
+              option
+                .setName("handicap")
+                .setDescription(
+                  "Handicap for both teams. Example: +1.5 or -1.5",
+                )
+                .setRequired(true),
+            )
+            .addStringOption((option) =>
+              option
+                .setName("match-date")
+                .setDescription(
+                  "Date and time of the match. Format: MM-DD-YYYY",
+                )
+                .setRequired(true),
+            )
+            .addStringOption((option) =>
+              option
+                .setName("kickoff-time")
+                .setDescription("Kickoff time of the match. Format: HH:MM")
+                .setRequired(true),
+            )
+            .addStringOption((option) =>
+              option
+                .setName("venue")
+                .setDescription("Venue of the match")
+                .setRequired(true),
+            ),
+        ),
+    )
+    .addSubcommand((subcommand) =>
       subcommand
         .setName("info")
         .setDescription("Get match info")
-        .addStringOption(option =>
+        .addStringOption((option) =>
           option
             .setName("id-or-name")
             .setDescription("Match ID to get info")
@@ -33,108 +164,58 @@ export default {
             .setRequired(true),
         ),
     )
-    .addSubcommand(subcommand =>
-      subcommand
-        .setName("create")
-        .setDescription("Create a new match")
-        .addStringOption(option =>
-          option
-            .setName("league")
-            .setDescription("League ID where to create match")
-            .setAutocomplete(true)
-            .setRequired(true),
-        )
-        .addStringOption(option =>
-          option
-            .setName("home-team")
-            .setDescription("Home team name")
-            .setRequired(true),
-        )
-        .addStringOption(option =>
-          option
-            .setName("away-team")
-            .setDescription("Away team name")
-            .setRequired(true),
-        )
-        .addNumberOption(option =>
-          option
-            .setName("home-odds")
-            .setDescription("Odds for home team")
-            .setRequired(true),
-        )
-        .addNumberOption(option =>
-          option
-            .setName("away-odds")
-            .setDescription("Odds for away team")
-            .setRequired(true),
-        )
-        .addStringOption(option =>
-          option
-            .setName("match-date")
-            .setDescription("Date and time of the match. Format: MM-DD-YYYY")
-            .setRequired(true),
-        )
-        .addNumberOption(option =>
-          option.setName("draw-odds").setDescription("Odds for draw"),
-        )
-        .addStringOption(option =>
-          option
-            .setName("handicap")
-            .setDescription("Handicap for both teams. Example: +1.5 or -1.5"),
-        ),
-    )
-    .addSubcommand(subcommand =>
+    .addSubcommand((subcommand) =>
       subcommand
         .setName("update")
         .setDescription("Update match details")
-        .addStringOption(option =>
+        .addStringOption((option) =>
           option
             .setName("id-or-name")
             .setDescription("Match ID to update")
             .setAutocomplete(true)
             .setRequired(true),
         )
-        .addNumberOption(option =>
+        .addNumberOption((option) =>
           option.setName("home-odds").setDescription("New home team odds"),
         )
-        .addNumberOption(option =>
+        .addNumberOption((option) =>
           option.setName("away-odds").setDescription("New away team odds"),
         )
-        .addBooleanOption(option =>
+        .addBooleanOption((option) =>
           option
             .setName("betting-lock-status")
             .setDescription("Enable/Disable betting for this match"),
         ),
     )
-    .addSubcommand(subcommand =>
+    .addSubcommand((subcommand) =>
       subcommand
         .setName("end")
         .setDescription("End a match and settle scores")
-        .addStringOption(option =>
+        .addStringOption((option) =>
           option
             .setName("id-or-name")
             .setDescription("Match ID to end")
             .setAutocomplete(true)
             .setRequired(true),
         )
-        .addNumberOption(option =>
+        .addNumberOption((option) =>
           option
             .setName("home-score")
             .setDescription("Home team score")
             .setRequired(true),
         )
-        .addNumberOption(option =>
+        .addNumberOption((option) =>
           option
             .setName("away-score")
             .setDescription("Away team score")
             .setRequired(true),
         ),
     )
-    .addSubcommand(subcommand =>
+    .addSubcommand((subcommand) =>
       subcommand
         .setName("cancel")
         .setDescription("Cancel/Void a match")
-        .addStringOption(option =>
+        .addStringOption((option) =>
           option
             .setName("id-or-name")
             .setDescription("Match ID to cancel")
@@ -160,13 +241,13 @@ export default {
       }
 
       const filtered = leagues.filter(
-        league =>
+        (league) =>
           league.LeagueID.includes(focusedValue) ||
           league.LeagueName.includes(focusedValue),
       );
 
       await interaction.respond(
-        filtered.map(choice => ({
+        filtered.map((choice) => ({
           name: `${choice.LeagueName}`,
           value: choice.LeagueID,
         })),
@@ -184,12 +265,12 @@ export default {
       }
 
       if (subCommand === "info") {
-        const filtered = matches.filter(match =>
+        const filtered = matches.filter((match) =>
           match.matchId.includes(focusedValue),
         );
 
         await interaction.respond(
-          filtered.map(choice => ({
+          filtered.map((choice) => ({
             name: `${choice.homeTeam} vs ${choice.awayTeam}`,
             value: choice.matchId,
           })),
@@ -200,14 +281,14 @@ export default {
         subCommand === "cancel"
       ) {
         const filtered = matches.filter(
-          match =>
+          (match) =>
             match.matchId.includes(focusedValue) &&
             !match.isCompleted &&
             !match.isAborted,
         );
 
         await interaction.respond(
-          filtered.map(choice => ({
+          filtered.map((choice) => ({
             name: `${choice.homeTeam} vs ${choice.awayTeam}`,
             value: choice.matchId,
           })),
@@ -218,13 +299,20 @@ export default {
 
   async execute(interaction) {
     const subcommand = interaction.options.getSubcommand();
+    const subcommandGroup = interaction.options.getSubcommandGroup();
+
+    if (subcommandGroup === "create") {
+      if (subcommand === "1x2") {
+        await create1x2Match(interaction);
+      } else if (subcommand === "asian-handicap") {
+        await createAsianHandicapMatch(interaction);
+      }
+      return;
+    }
 
     switch (subcommand) {
       case "info":
         await infoMatch(interaction);
-        break;
-      case "create":
-        await createMatch(interaction);
         break;
       case "update":
         await updateMatch(interaction);
@@ -258,6 +346,18 @@ async function infoMatch(interaction: ChatInputCommandInteraction) {
     return;
   }
 
+  const totalBets = match.UserBets.length;
+  const correctBets = match.UserBets.filter(
+    (bet) =>
+      (bet.StakeOn === "home" &&
+        (match.homeTeamScore ?? 0) > (match.awayTeamScore ?? 0)) ||
+      (bet.StakeOn === "away" &&
+        (match.awayTeamScore ?? 0) > (match.homeTeamScore ?? 0)) ||
+      (bet.StakeOn === "draw" &&
+        (match.homeTeamScore ?? 0) === (match.awayTeamScore ?? 0)),
+  ).length;
+  const correctPercentage = totalBets > 0 ? (correctBets / totalBets) * 100 : 0;
+
   const embed = new EmbedBuilder()
     .setTitle(`${match.homeTeam} vs ${match.awayTeam}`)
     .setDescription(
@@ -288,12 +388,12 @@ async function infoMatch(interaction: ChatInputCommandInteraction) {
       },
       {
         name: "Home Score",
-        value: `${match.homeTeamScore || "N/A"}`,
+        value: `${match.homeTeamScore ?? "N/A"}`,
         inline: true,
       },
       {
         name: "Away Score",
-        value: `${match.awayTeamScore || "N/A"}`,
+        value: `${match.awayTeamScore ?? "N/A"}`,
         inline: true,
       },
       {
@@ -326,6 +426,11 @@ async function infoMatch(interaction: ChatInputCommandInteraction) {
         value: `${match.awayTeamHandicap || "N/A"}`,
         inline: true,
       },
+      {
+        name: "Correct Bets",
+        value: `${correctBets} (${correctPercentage.toFixed(2)}%)`,
+        inline: true,
+      },
     )
     .setColor(Colors.Blue)
     .setTimestamp();
@@ -333,7 +438,7 @@ async function infoMatch(interaction: ChatInputCommandInteraction) {
   await interaction.editReply({ embeds: [embed] });
 }
 
-async function createMatch(interaction: ChatInputCommandInteraction) {
+async function create1x2Match(interaction: ChatInputCommandInteraction) {
   await interaction.deferReply();
 
   const leagueId = interaction.options.getString("league", true);
@@ -341,9 +446,10 @@ async function createMatch(interaction: ChatInputCommandInteraction) {
   const awayTeam = interaction.options.getString("away-team", true);
   const homeOdds = interaction.options.getNumber("home-odds", true);
   const awayOdds = interaction.options.getNumber("away-odds", true);
-  const drawOdds = interaction.options.getNumber("draw-odds") || 0;
-  const handicap = interaction.options.getString("handicap");
-  const matchDate = interaction.options.getString("match-date");
+  const drawOdds = interaction.options.getNumber("draw-odds", true);
+  const matchDate = interaction.options.getString("match-date", true);
+  const kickoffTime = interaction.options.getString("kickoff-time", true);
+  const venue = interaction.options.getString("venue", true);
 
   if (
     !leagueId ||
@@ -351,7 +457,10 @@ async function createMatch(interaction: ChatInputCommandInteraction) {
     !awayTeam ||
     !homeOdds ||
     !awayOdds ||
-    !matchDate
+    !drawOdds ||
+    !matchDate ||
+    !kickoffTime ||
+    !venue
   ) {
     await interaction.editReply("Please provide all parameters!");
     return;
@@ -369,7 +478,7 @@ async function createMatch(interaction: ChatInputCommandInteraction) {
   const activeMatches = await (await db())
     .collection<MatchType>("matches")
     .countDocuments({
-      matchId: { $in: league.LeagueMatches.map(m => m.matchId) },
+      matchId: { $in: league.LeagueMatches.map((m) => m.matchId) },
       isCompleted: false,
       isAborted: false,
     });
@@ -382,6 +491,15 @@ async function createMatch(interaction: ChatInputCommandInteraction) {
   }
 
   try {
+    const [month, day, year] = matchDate.split("-");
+    const formattedDate = `${year}-${month}-${day}`;
+    const matchDateTimeString = `${formattedDate}T${kickoffTime}:00`;
+    const matchDateTime = new Date(matchDateTimeString);
+
+    if (Number.isNaN(matchDateTime.getTime())) {
+      throw new Error(`Invalid date format: ${matchDateTimeString}`);
+    }
+
     const newMatch = MatchSchema.parse({
       matchId: ulid(),
       matchMsgChannel: league.LeagueChannel,
@@ -391,46 +509,18 @@ async function createMatch(interaction: ChatInputCommandInteraction) {
       homeTeamOdds: homeOdds,
       awayTeamOdds: awayOdds,
       drawOdds: drawOdds,
-      homeTeamHandicap: handicap?.startsWith("+") ? handicap : undefined,
-      awayTeamHandicap: handicap?.startsWith("-") ? handicap : undefined,
       UserBets: [],
       totalBets: 0,
       isStarted: false,
       isCompleted: false,
       isAborted: false,
       isDraw: false,
-      matchDate: new Date(matchDate),
+      matchDate: matchDateTime,
+      venue,
+      kickoffTime, // Ensure kickoffTime is passed to the schema
     });
 
-    const matchEmbed = new EmbedBuilder()
-      .setTitle(`${homeTeam} vs ${awayTeam}`)
-      .setDescription(
-        handicap
-          ? `Handicap: \nHome - ${homeTeam} - (${handicap})\nAway - ${awayTeam} - (${handicap})`
-          : "No handicap applied",
-      )
-      .addFields(
-        {
-          name: `homeTeam - ${homeTeam}`,
-          value: `Odds: ${homeOdds}`,
-          inline: true,
-        },
-        drawOdds
-          ? { name: "Draw", value: `Odds: ${drawOdds}`, inline: true }
-          : { name: "\u200B", value: "\u200B", inline: true },
-        {
-          name: `awayTeam - ${awayTeam}`,
-          value: `Odds: ${awayOdds}`,
-          inline: true,
-        },
-        {
-          name: "Total Bets",
-          value: "0",
-          inline: true,
-        },
-      )
-      .setColor(Colors.Blue)
-      .setTimestamp();
+    const matchEmbed = generateMatchEmbed(newMatch);
 
     const channel = await interaction.client.channels.fetch(
       league.LeagueChannel,
@@ -448,10 +538,7 @@ async function createMatch(interaction: ChatInputCommandInteraction) {
       return;
     }
 
-    const buttons = createMatchButtons(
-      newMatch.matchId,
-      drawOdds !== undefined,
-    );
+    const buttons = createMatchButtons(newMatch.matchId, true);
 
     const message = await channel.send({
       embeds: [matchEmbed],
@@ -496,12 +583,202 @@ async function createMatch(interaction: ChatInputCommandInteraction) {
         },
         {
           name: "Draw Odds",
-          value: `${drawOdds}` || "N/A",
+          value: `${drawOdds}`,
+          inline: true,
+        },
+        {
+          name: "Match Date",
+          value: `${matchDate}`,
+          inline: true,
+        },
+        {
+          name: "Kickoff Time",
+          value: `${kickoffTime}`,
+          inline: true,
+        },
+        {
+          name: "Venue",
+          value: `${venue}`,
+          inline: true,
+        },
+      )
+      .setTimestamp();
+
+    await interaction.editReply({
+      content: `Match created successfully! ID: \`${newMatch.matchId}\``,
+      embeds: [myEmbed],
+    });
+  } catch (error) {
+    console.error(error);
+    await interaction.editReply("Failed to create match!");
+  }
+}
+
+async function createAsianHandicapMatch(
+  interaction: ChatInputCommandInteraction,
+) {
+  await interaction.deferReply();
+
+  const leagueId = interaction.options.getString("league", true);
+  const homeTeam = interaction.options.getString("home-team", true);
+  const awayTeam = interaction.options.getString("away-team", true);
+  const homeOdds = interaction.options.getNumber("home-odds", true);
+  const awayOdds = interaction.options.getNumber("away-odds", true);
+  const handicap = interaction.options.getString("handicap", true);
+  const matchDate = interaction.options.getString("match-date", true);
+  const kickoffTime = interaction.options.getString("kickoff-time", true);
+  const venue = interaction.options.getString("venue", true);
+
+  if (
+    !leagueId ||
+    !homeTeam ||
+    !awayTeam ||
+    !homeOdds ||
+    !awayOdds ||
+    !handicap ||
+    !matchDate ||
+    !kickoffTime ||
+    !venue
+  ) {
+    await interaction.editReply("Please provide all parameters!");
+    return;
+  }
+
+  const league = await (await db())
+    .collection<LeagueType>("leagues")
+    .findOne({ LeagueID: leagueId, IsLeagueCompleted: false });
+
+  if (!league) {
+    await interaction.editReply("League not found or is completed!");
+    return;
+  }
+
+  const activeMatches = await (await db())
+    .collection<MatchType>("matches")
+    .countDocuments({
+      matchId: { $in: league.LeagueMatches.map((m) => m.matchId) },
+      isCompleted: false,
+      isAborted: false,
+    });
+
+  if (activeMatches >= 10) {
+    await interaction.editReply(
+      "Maximum active matches limit (10) reached for this league!",
+    );
+    return;
+  }
+
+  try {
+    // Convert date format from MM-DD-YYYY to YYYY-MM-DD
+    const [month, day, year] = matchDate.split("-");
+    const formattedDate = `${year}-${month}-${day}`;
+    const matchDateTimeString = `${formattedDate}T${kickoffTime}:00`;
+    const matchDateTime = new Date(matchDateTimeString);
+
+    if (Number.isNaN(matchDateTime.getTime())) {
+      throw new Error(`Invalid date format: ${matchDateTimeString}`);
+    }
+
+    const newMatch = MatchSchema.parse({
+      matchId: ulid(),
+      matchMsgChannel: league.LeagueChannel,
+      matchMsgId: "",
+      homeTeam,
+      awayTeam,
+      homeTeamOdds: homeOdds,
+      awayTeamOdds: awayOdds,
+      homeTeamHandicap: handicap.startsWith("+") ? handicap : undefined,
+      awayTeamHandicap: handicap.startsWith("-") ? handicap : undefined,
+      UserBets: [],
+      totalBets: 0,
+      isStarted: false,
+      isCompleted: false,
+      isAborted: false,
+      isDraw: false,
+      matchDate: matchDateTime,
+      venue,
+      kickoffTime, // Ensure kickoffTime is passed to the schema
+    });
+
+    const matchEmbed = generateMatchEmbed(newMatch);
+
+    const channel = await interaction.client.channels.fetch(
+      league.LeagueChannel,
+    );
+
+    if (!channel) {
+      await interaction.editReply(
+        "Invalid league channel! Please check if its text channel.",
+      );
+      return;
+    }
+
+    if (channel.type !== ChannelType.GuildText) {
+      await interaction.editReply("Invalid league channel!");
+      return;
+    }
+
+    const buttons = createMatchButtons(newMatch.matchId, false);
+
+    const message = await channel.send({
+      embeds: [matchEmbed],
+      components: [buttons],
+    });
+
+    newMatch.matchMsgId = message.id;
+
+    await (await db()).collection<MatchType>("matches").insertOne(newMatch);
+
+    await (await db())
+      .collection<LeagueType>("leagues")
+      .updateOne(
+        { LeagueID: leagueId },
+        { $push: { LeagueMatches: { matchId: newMatch.matchId } } },
+      );
+
+    const myEmbed = new EmbedBuilder()
+      .setTitle("Match Created")
+      .setDescription(`Match created successfully! ID: ${newMatch.matchId}`)
+      .setColor(Colors.Green)
+      .addFields(
+        {
+          name: "Home Team",
+          value: homeTeam,
+          inline: true,
+        },
+        {
+          name: "Away Team",
+          value: awayTeam,
+          inline: true,
+        },
+        {
+          name: "Home Odds",
+          value: `${homeOdds}`,
+          inline: true,
+        },
+        {
+          name: "Away Odds",
+          value: `${awayOdds}`,
           inline: true,
         },
         {
           name: "Handicap",
-          value: `${handicap}` || "N/A",
+          value: `${handicap}`,
+          inline: true,
+        },
+        {
+          name: "Match Date",
+          value: `${matchDate}`,
+          inline: true,
+        },
+        {
+          name: "Kickoff Time",
+          value: `${kickoffTime}`,
+          inline: true,
+        },
+        {
+          name: "Venue",
+          value: `${venue}`,
           inline: true,
         },
       )
@@ -563,18 +840,19 @@ async function updateMatch(interaction: ChatInputCommandInteraction) {
       await interaction.editReply("Match embed not found!");
       return;
     }
-    const embed = message.embeds[0].toJSON();
+    const updatedMatch = await (await db())
+      .collection<MatchType>("matches")
+      .findOne({ matchId });
 
-    if (!embed.fields || !embed.fields[0] || !embed.fields[2]) {
-      await interaction.editReply("Match embed fields not found!");
+    if (!updatedMatch) {
+      await interaction.editReply("Match not found!");
       return;
     }
 
-    if (homeOdds) embed.fields[0].value = `Odds: ${homeOdds}`;
-    if (awayOdds) embed.fields[2].value = `Odds: ${awayOdds}`;
+    const updatedEmbed = generateMatchEmbed(updatedMatch);
 
     await message.edit({
-      embeds: [embed],
+      embeds: [updatedEmbed],
       components:
         bettingLockStatus === false ? [createMatchButtons(matchId, true)] : [],
     });
@@ -628,6 +906,10 @@ async function endMatch(interaction: ChatInputCommandInteraction) {
         : "draw";
   };
 
+  function calculateROI(stake: number, winnings: number) {
+    return (winnings / stake) * 100 - 100;
+  }
+
   const result = calculateHandicapResult(
     homeScore,
     awayScore,
@@ -655,7 +937,27 @@ async function endMatch(interaction: ChatInputCommandInteraction) {
       loss: user.loss + (won ? 0 : bet.StakeAmount),
       WinStreakCurrent: won ? user.WinStreakCurrent + 1 : 0,
       LooseStreakCurrent: won ? 0 : user.LooseStreakCurrent + 1,
+      StakeInvestment: user.StakeInvestment + bet.StakeAmount,
     };
+
+    if (match.homeTeamHandicap || match.awayTeamHandicap) {
+      updates.InvestmentAsianHandicap =
+        (user.InvestmentAsianHandicap || 0) + bet.StakeAmount;
+      updates.ROIAsianHandicap = calculateROI(
+        user.InvestmentAsianHandicap,
+        user.profits,
+      );
+    } else {
+      updates.Investment1x2 = (user.Investment1x2 || 0) + bet.StakeAmount;
+      updates.ROI1x2 = calculateROI(user.Investment1x2, user.profits);
+    }
+
+    updates.roi = calculateROI(user.StakeInvestment, user.profits);
+    updates.ROI1x2 = calculateROI(user.Investment1x2, user.profits);
+    updates.ROIAsianHandicap = calculateROI(
+      user.InvestmentAsianHandicap,
+      user.profits,
+    );
 
     if (!updates.WinStreakCurrent) {
       updates.WinStreakCurrent = 0;
@@ -705,23 +1007,22 @@ async function endMatch(interaction: ChatInputCommandInteraction) {
       await interaction.editReply("Match embed not found!");
       return;
     }
-    const embed = message.embeds[0].toJSON();
 
-    if (!embed.fields) {
-      await interaction.editReply("Match embed fields not found!");
+    const updatedMatch = await (await db())
+      .collection<MatchType>("matches")
+      .findOne({ matchId });
+
+    if (!updatedMatch) {
+      await interaction.editReply("Match not found!");
       return;
     }
 
-    embed.fields.push({
-      name: `Results - ${result === "draw" ? "Draw" : result === "home" ? match.homeTeam : match.awayTeam}`,
-      value: `Home: ${match.homeTeam} ${homeScore} - Away: ${awayScore} ${match.awayTeam}`,
-      inline: false,
-    });
+    const updatedEmbed = generateMatchEmbed(updatedMatch);
 
-    embed.color = result === "draw" ? Colors.Yellow : Colors.Green;
+    updatedEmbed.setColor(result === "draw" ? Colors.Yellow : Colors.Green);
 
     await message.edit({
-      embeds: [embed],
+      embeds: [updatedEmbed],
       components: [],
     });
   } catch (error) {
@@ -730,7 +1031,6 @@ async function endMatch(interaction: ChatInputCommandInteraction) {
 
   await interaction.editReply("Match completed and winnings distributed!");
 }
-
 async function cancelMatch(interaction: ChatInputCommandInteraction) {
   await interaction.deferReply();
 
@@ -745,13 +1045,12 @@ async function cancelMatch(interaction: ChatInputCommandInteraction) {
     return;
   }
 
-  const bulkOps = match.UserBets.map(bet => ({
+  const bulkOps = match.UserBets.map((bet) => ({
     updateOne: {
       filter: { userId: bet.UserID },
       update: {
         $inc: {
           userPoints: bet.StakeAmount,
-          BetsWithdrawn: 1,
         },
       },
     },
@@ -784,20 +1083,24 @@ async function cancelMatch(interaction: ChatInputCommandInteraction) {
       await interaction.editReply("Match embed not found!");
       return;
     }
-    const embed = message.embeds[0].toJSON();
+    const updatedMatch = await (await db())
+      .collection<MatchType>("matches")
+      .findOne({ matchId });
 
-    if (!embed.fields) {
-      await interaction.editReply("Match embed fields not found!");
+    if (!updatedMatch) {
+      await interaction.editReply("Match not found!");
       return;
     }
 
-    embed.fields.push({
+    const embed = generateMatchEmbed(updatedMatch);
+
+    embed.addFields({
       name: "Status",
       value: "Match Cancelled - All bets refunded",
       inline: false,
     });
 
-    embed.color = Colors.Red;
+    embed.setColor(Colors.Red);
 
     await message.edit({
       embeds: [embed],
@@ -838,4 +1141,82 @@ export function createMatchButtons(
   );
 
   return row;
+}
+
+function generateMatchEmbed(match: MatchType): EmbedBuilder {
+  const embed = new EmbedBuilder()
+    .setTitle(`${match.homeTeam} vs ${match.awayTeam}`)
+    .setDescription(`Venue: ${match.venue}`)
+    .addFields(
+      {
+        name: `Home Team - ${match.homeTeam}`,
+        value: `Odds: ${match.homeTeamOdds}`,
+        inline: true,
+      },
+      match.drawOdds
+        ? { name: "Draw", value: `Odds: ${match.drawOdds}`, inline: true }
+        : { name: "\u200B", value: "\u200B", inline: true },
+      {
+        name: `Away Team - ${match.awayTeam}`,
+        value: `Odds: ${match.awayTeamOdds}`,
+        inline: true,
+      },
+      {
+        name: "Total Bets",
+        value: `${match.totalBets}`,
+        inline: true,
+      },
+      {
+        name: "Home Score",
+        value: `${match.homeTeamScore ?? "N/A"}`,
+        inline: true,
+      },
+      {
+        name: "Away Score",
+        value: `${match.awayTeamScore ?? "N/A"}`,
+        inline: true,
+      },
+      {
+        name: "Is Completed",
+        value: `${match.isCompleted ? "Yes" : "No"}`,
+        inline: true,
+      },
+      {
+        name: "Is Aborted",
+        value: `${match.isAborted ? "Yes" : "No"}`,
+        inline: true,
+      },
+      {
+        name: "Is Draw",
+        value: `${match.isDraw ? "Yes" : "No"}`,
+        inline: true,
+      },
+      {
+        name: "Match Date",
+        value: `${match.matchDate}`,
+        inline: true,
+      },
+      {
+        name: "Home Team Handicap",
+        value: `${match.homeTeamHandicap || "N/A"}`,
+        inline: true,
+      },
+      {
+        name: "Away Team Handicap",
+        value: `${match.awayTeamHandicap || "N/A"}`,
+        inline: true,
+      },
+    )
+    .setColor(Colors.Blue)
+    .setTimestamp();
+
+  if (match.isCompleted) {
+    embed.setTitle(`${match.homeTeam} vs ${match.awayTeam} - Ended`);
+  } else if (match.isAborted) {
+    embed.setTitle(`${match.homeTeam} vs ${match.awayTeam} - Aborted`);
+  } else if (match.isStarted) {
+    embed.setTitle(`${match.homeTeam} vs ${match.awayTeam} - Started`);
+  }
+
+  return embed;
 }
