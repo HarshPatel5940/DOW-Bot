@@ -4,8 +4,10 @@ import { z } from "zod";
 export const MatchUserSchema = z.object({
   UserID: z.string(),
   StakeAmount: z.number().optional().default(100),
-  StakeOn: z.enum(["home", "away"]).optional(),
+  StakeOn: z.enum(["home", "away", "draw"]).optional(),
   StakeGiven: z.boolean().optional().default(false),
+
+  CorrectGuesses: z.number().optional().default(0),
 });
 
 export type MatchUserType = z.infer<typeof MatchUserSchema>;
@@ -63,6 +65,8 @@ export const MatchSchema = z.object({
   isCompleted: z.boolean().optional().default(false),
 
   matchDate: z.date().default(() => new Date()),
+  venue: z.string(),
+  kickoffTime: z.string(),
 
   updatedAt: z
     .date()

@@ -1,5 +1,8 @@
 import {
   ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  ChannelType,
   Colors,
   EmbedBuilder,
   Events,
@@ -85,7 +88,20 @@ async function handleMatchBet(
     match.isAborted ||
     match.BetsLocked
   ) {
-    await interaction.editReply("This match is no longer accepting bets!");
+    await interaction.editReply(
+      `This match is no longer accepting bets! \nStarted? ${match.isStarted}\nCompleted? ${match.isCompleted}\nAborted? ${match.isAborted}\nBets Locked? ${match.BetsLocked}\n`,
+    );
+    return;
+  }
+
+  const currentTime = new Date();
+  const matchTime = new Date(match.matchDate);
+
+  if (currentTime >= matchTime) {
+    await interaction.editReply(
+      "This match has already started and is no longer accepting bets!",
+    );
+    await disableBettingButtons(interaction, matchId);
     return;
   }
 
@@ -93,8 +109,10 @@ async function handleMatchBet(
     bet => bet.UserID === interaction.user.id,
   );
 
-  if (existingBet) {
-    await interaction.editReply("You have already placed a bet on this match!");
+  if (existingBet && existingBet.StakeOn !== betType) {
+    await interaction.editReply(
+      "You have already placed a bet on this match for a different team! You can only place additional bets for the same team.",
+    );
     return;
   }
 
@@ -149,7 +167,7 @@ async function handleMatchBet(
   const embed = new EmbedBuilder()
     .setTitle("Bet Placed Successfully!")
     .setDescription(
-      `You bet ${stakeAmount} points on ${betType === "home" ? match.homeTeam : match.awayTeam}`,
+      `You bet ${stakeAmount} points on ${betType === "home" ? match.homeTeam : betType === "away" ? match.awayTeam : "Draw"}`,
     )
     .setColor(Colors.Green);
 
@@ -173,4 +191,73 @@ function createBetModal(matchId: string, betType: string) {
     .setCustomId(`match_stake_${matchId}_${betType}`)
     .setTitle("Place Your Bet")
     .addComponents(actionRow);
+}
+
+export async function disableBettingButtons(
+  interaction: Interaction,
+  matchId: string,
+) {
+  const match = await (await db())
+    .collection<MatchType>("matches")
+    .findOneAndUpdate({ matchId }, { $set: { isStarted: true } });
+
+  if (!match) {
+    throw new Error("Match not found!");
+  }
+
+  const currentTime = new Date();
+  const matchTime = new Date(match.matchDate);
+
+  if (currentTime < matchTime) {
+    throw new Error("Match has not started yet!");
+  }
+
+  const channel = await interaction.client.channels.fetch(
+    match.matchMsgChannel,
+  );
+
+  if (!channel || channel.type !== ChannelType.GuildText) {
+    throw new Error("Invalid league channel!");
+  }
+
+  try {
+    const message = await channel.messages.fetch(match.matchMsgId);
+    if (!message.embeds[0]) {
+      throw new Error("Match embed not found!");
+    }
+
+    const embed = message.embeds[0].toJSON();
+
+    if (!embed.fields) {
+      throw new Error("Match embed fields not found!");
+    }
+
+    const disabledButtons = new ActionRowBuilder<ButtonBuilder>().addComponents(
+      new ButtonBuilder()
+        .setCustomId(`match_bet_${matchId}_home`)
+        .setLabel("Bet Home")
+        .setStyle(ButtonStyle.Primary)
+        .setDisabled(true),
+      new ButtonBuilder()
+        .setCustomId(`match_bet_${matchId}_draw`)
+        .setLabel("Bet Draw")
+        .setStyle(ButtonStyle.Secondary)
+        .setDisabled(true),
+      new ButtonBuilder()
+        .setCustomId(`match_bet_${matchId}_away`)
+        .setLabel("Bet Away")
+        .setStyle(ButtonStyle.Danger)
+        .setDisabled(true),
+    );
+
+    await message.edit({
+      embeds: [embed],
+      components: [disabledButtons],
+    });
+
+    console.log("Betting buttons disabled successfully!");
+  } catch (error) {
+    console.error("Failed to disable betting buttons:", error);
+    throw new Error("Failed to disable betting buttons!");
+  }
 }
